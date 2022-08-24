@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -24,13 +25,10 @@ public class Main {
             new String[] {"1","Wayne Enterprises","10000","12-01-2021"}
     );
 
-    //Hashmap that uses customer id as key
-    private static Map<Integer, Customer> customerList = new HashMap<>();
-    //List that contains customers with positive balance
-    private static List<Customer> positive = new ArrayList<>();
-    //List that contains customers with negative balance
-    private static List<Customer> negative = new ArrayList<>();
-
+    //List of customers
+    private static List<Customer> customerList = new ArrayList<>();
+    //List that keeps track of the ids of customers already created
+    private static List<Integer> idList = new ArrayList<>();
 
     //Method that parses each array's data
     public static void parseData(){
@@ -48,27 +46,33 @@ public class Main {
 
     //Method that updates or creates customer based on info
     public static void updateCustomer(int id,String name,int charge,String date){
-        //if map is empty or does not have this id then add new customer
-        if(customerList.isEmpty() || !customerList.containsKey(id))
-            customerList.put(id,new Customer(id, name,charge,date));
-        //else map already contains this customer data so just add new account record to it
+        //if list is empty or id is not yet used then add new customer
+        if(customerList.isEmpty() || idList.isEmpty() || !idList.contains(id)) {
+            customerList.add(new Customer(id, name, charge, date));
+            idList.add(id);
+        }
+        //else it means customer already exist so just update its account record
         else {
-            customerList.get(id).getCharges().add(new AccountRecord(charge,date));
+            customerList.stream().filter(ct -> ct.getId()==id).forEach(ct ->ct.getCharges().add(new AccountRecord(charge,date)));
         }
     }
 
-    //Method that sends customers with positive balance in "positive" list and the rest in "negative" list
-    public static void sortCustomerBalance(){
-        customerList.forEach((k,v)-> {if(v.getBalance()>0) positive.add(v); else negative.add(v);});
+    //Method that streams through customer list and returns the positive accounts
+    public static String positive(){
+        return customerList.stream().filter(ct -> ct.getBalance()>=0).collect(Collectors.toList()).toString();
+    }
+
+    //Method that streams through customer list and returns the negative accounts
+    public static String negative(){
+        return customerList.stream().filter(ct -> ct.getBalance()<0).collect(Collectors.toList()).toString();
     }
 
     public static void main(String[] args) {
         //go through customer data and populate Customer and AccountRecord class
         parseData();
-        sortCustomerBalance();
 
         //print list of positive and negative accounts
-        System.out.println("Positive accounts: "+positive);
-        System.out.println("Negative accounts: "+negative);
+        System.out.println("Positive accounts: "+positive());
+        System.out.println("Negative accounts: "+negative());
     }
 }
