@@ -1,4 +1,4 @@
-package repositories;
+package com.company.Summative2AndriamasinoroMandresy.repositories;
 
 import com.company.Summative2AndriamasinoroMandresy.models.Author;
 import com.company.Summative2AndriamasinoroMandresy.repositories.AuthorRepository;
